@@ -13,18 +13,18 @@ pipeline {
     }
 
     stage('Tests') {
-      steps {
-        sh '''
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          if [ -d "tests" ]; then
-            python -m pytest -q
-          else
-            echo "No tests/ directory found; skipping tests."
-          fi
-        '''
-      }
-    }
+  steps {
+    sh '''
+      if [ -d "tests" ]; then
+        docker run --rm -v "$PWD":/app -w /app python:3.11-slim \
+          sh -c "pip install -r requirements.txt && pytest -q"
+      else
+        echo "No tests/ directory found; skipping tests."
+      fi
+    '''
+  }
+}
+
 
     stage('Build Docker Image') {
       steps {

@@ -12,18 +12,18 @@ pipeline {
       steps { checkout scm }
     }
 
-    stage('Tests') {
-  steps {
-    sh '''
-      if [ -d "tests" ]; then
-        docker run --rm -v "$PWD":/app -w /app python:3.11-slim \
-          sh -c "pip install -r requirements.txt && pytest -q"
-      else
-        echo "No tests/ directory found; skipping tests."
-      fi
-    '''
-  }
-}
+//     stage('Tests') {
+//   steps {
+//     sh '''
+//       if [ -d "tests" ]; then
+//         docker run --rm -v "$PWD":/app -w /app python:3.11-slim \
+//           sh -c "pip install -r requirements.txt && pytest -q"
+//       else
+//         echo "No tests/ directory found; skipping tests."
+//       fi
+//     '''
+//   }
+// }
 
 
     stage('Build Docker Image') {

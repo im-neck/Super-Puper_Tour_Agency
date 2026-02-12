@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -6,6 +8,18 @@ CREATE TABLE users (
     full_name VARCHAR(255) NOT NULL,
     phone VARCHAR(50) NOT NULL,
     registered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE countries (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(120) NOT NULL UNIQUE
+);
+
+CREATE TABLE resorts (
+    id BIGSERIAL PRIMARY KEY,
+    country_id BIGINT NOT NULL REFERENCES countries (id),
+    name VARCHAR(120) NOT NULL,
+    city VARCHAR(120) NOT NULL
 );
 
 CREATE TABLE tours (
@@ -38,6 +52,9 @@ CREATE TABLE bookings (
 );
 
 CREATE INDEX idx_users_email ON users (email);
+CREATE INDEX idx_countries_name_trgm ON countries USING gin (name gin_trgm_ops);
+CREATE INDEX idx_resorts_name_trgm ON resorts USING gin (name gin_trgm_ops);
+CREATE INDEX idx_resorts_city_trgm ON resorts USING gin (city gin_trgm_ops);
 CREATE INDEX idx_tours_country ON tours (country);
 CREATE INDEX idx_tours_city ON tours (city);
 CREATE INDEX idx_bookings_user ON bookings (user_id);

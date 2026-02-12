@@ -3,9 +3,13 @@ pipeline {
 
   environment {
     IMAGE_NAME = "super-puper-tour-agency"
-    CONTAINER_NAME = "spa"
-    ENV_FILE = ".env"
+    CONTAINER_NAME = "spa-${BUILD_NUMBER}"
     PYTHON_IMAGE = "python:3.11.8-slim"
+    APP_NAME = "Super Puper Tour Agency"
+    DEBUG = "false"
+    JWT_SECRET = "change-me"
+    JWT_ALGORITHM = "HS256"
+    API_VERSION = "v1"
   }
 
   stages {
@@ -36,13 +40,16 @@ pipeline {
     stage('Run Container') {
       steps {
         sh '''
-          if [ ! -f "${ENV_FILE}" ]; then
-            echo "Missing ${ENV_FILE}. Create it in repo root."
-            exit 1
-          fi
-          docker stop ${CONTAINER_NAME} || true
-          docker rm ${CONTAINER_NAME} || true
-          docker run -d --name ${CONTAINER_NAME} -p 8000:8000 --env-file ${ENV_FILE} ${IMAGE_NAME}:latest
+          docker rm -f ${CONTAINER_NAME} || true
+          docker run -d --name ${CONTAINER_NAME} -P \
+            -e APP_NAME="${APP_NAME}" \
+            -e DEBUG="${DEBUG}" \
+            -e JWT_SECRET="${JWT_SECRET}" \
+            -e JWT_ALGORITHM="${JWT_ALGORITHM}" \
+            -e API_VERSION="${API_VERSION}" \
+            ${IMAGE_NAME}:${BUILD_NUMBER}
+          echo "Container ${CONTAINER_NAME} ports:"
+          docker port ${CONTAINER_NAME}
         '''
       }
     }

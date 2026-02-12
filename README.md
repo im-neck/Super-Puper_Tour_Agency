@@ -47,3 +47,8 @@ SQL-скрипты создания объектов БД лежат в `docs/db
 - `docs/db/001_create_tables.sql` — таблицы и индексы
 - `docs/db/002_views.sql` — представления
 - `docs/db/003_procedures.sql` — процедуры/функции
+Для неточного поиска по названиям используется `pg_trgm` и GIN‑индексы на `countries.name`, `resorts.name`, `resorts.city`.
+
+## Диаграммы BPMN и Sequence по ТЗ
+
+В `docs/diagrams/bpmn` и `docs/diagrams/sequence` соответвенно 

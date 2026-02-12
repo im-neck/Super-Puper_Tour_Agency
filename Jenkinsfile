@@ -5,6 +5,7 @@ pipeline {
     IMAGE_NAME = "super-puper-tour-agency"
     CONTAINER_NAME = "spa"
     ENV_FILE = ".env"
+    PYTHON_IMAGE = "python:3.11.8-slim"
   }
 
   stages {
@@ -12,18 +13,18 @@ pipeline {
       steps { checkout scm }
     }
 
-//     stage('Tests') {
-//   steps {
-//     sh '''
-//       if [ -d "tests" ]; then
-//         docker run --rm -v "$PWD":/app -w /app python:3.11-slim \
-//           sh -c "pip install -r requirements.txt && pytest -q"
-//       else
-//         echo "No tests/ directory found; skipping tests."
-//       fi
-//     '''
-//   }
-// }
+    stage('Tests') {
+      steps {
+        sh '''
+          if [ -d "tests" ]; then
+            docker run --rm -v "$PWD":/app -w /app ${PYTHON_IMAGE} \
+              sh -c "pip install -r requirements.txt && pytest -q"
+          else
+            echo "No tests/ directory found; skipping tests."
+          fi
+        '''
+      }
+    }
 
 
     stage('Build Docker Image') {

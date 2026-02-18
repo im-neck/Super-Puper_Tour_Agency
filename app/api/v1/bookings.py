@@ -8,6 +8,7 @@ from app.services.bookings import (
     create_booking,
     list_bookings_for_user,
 )
+from app.services.kafka_producer import send_event
 from app.shemas.booking import BookingCreate, BookingOut, BookingUserOut
 
 router = APIRouter(prefix="/bookings")
@@ -20,7 +21,12 @@ def create_booking_endpoint(
     user: User = Depends(get_current_user),
 ) -> BookingOut:
     try:
-        return create_booking(db, user.id, payload.tour_id, payload.client_comment)
+        booking = create_booking(db, user.id, payload.tour_id, payload.client_comment)
+        send_event(
+            "booking_created",
+            {"booking_id": booking.id, "user_id": user.id, "tour_id": booking.tour_id},
+        )
+        return booking
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
@@ -40,6 +46,11 @@ def cancel_booking(
     user: User = Depends(get_current_user),
 ) -> BookingOut:
     try:
-        return cancel_booking_by_client(db, booking_id, user.id)
+        booking = cancel_booking_by_client(db, booking_id, user.id)
+        send_event(
+            "booking_cancelled_by_client",
+            {"booking_id": booking.id, "user_id": user.id, "tour_id": booking.tour_id},
+        )
+        return booking
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

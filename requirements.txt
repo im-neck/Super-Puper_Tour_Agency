@@ -7,3 +7,4 @@ bcrypt==3.2.2
 python-jose==3.3.0
 python-multipart==0.0.9
 email-validator==2.1.1
+kafka-python==2.0.2

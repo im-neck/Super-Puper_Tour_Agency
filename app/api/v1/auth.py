@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.security import create_access_token
 from app.services.auth import authenticate_user, create_user
+from app.services.kafka_producer import send_event
 from app.services.user import get_user_by_email
 from app.shemas.auth import Token
 from app.shemas.user import UserCreate, UserOut
@@ -46,6 +47,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserOut:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
+    send_event("user_registered", {"user_id": user.id, "email": user.email})
     return user
 
 
@@ -65,4 +67,5 @@ def login(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
     token = create_access_token(subject=str(user.id), role=user.role.value)
+    send_event("user_login", {"user_id": user.id, "email": user.email})
     return Token(access_token=token)

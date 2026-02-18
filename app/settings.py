@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     api_version: str = "v1"
     database_url: str = "sqlite:///./app.db"
     booking_auto_cancel_hours: int = 24
+    kafka_bootstrap_servers: str = "kafka:9092"
+    kafka_topic_numbers: str = "numbers"
+    kafka_topic_dlq: str = "numbers_dlq"
+    kafka_topic_events: str = "app_events"
 
     class Config:
         env_file = ".env"

@@ -28,10 +28,7 @@ docker run -p 8000:8000 --env-file .env super-puper-tour-agency
 ```
 
 API будет доступно на `http://localhost:8000`.
-
-### 4) Swagger UI
-
-Открой `http://localhost:8000/docs`.
+Swagger UI будет доступен на `http://localhost:8000/docs`.
 
 
 ## Прототип интерфейса

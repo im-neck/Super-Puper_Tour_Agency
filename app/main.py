@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from time import perf_counter
 
 from fastapi import FastAPI, Request
@@ -8,9 +9,20 @@ from app.security import decode_access_token
 from app.services.kafka_producer import close_producer, send_event
 from app.settings import settings
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    init_db()
+    try:
+        yield
+    finally:
+        close_producer()
+
+
 app = FastAPI(
     title=settings.app_name,
-    debug=settings.debug
+    debug=settings.debug,
+    lifespan=lifespan,
 )
 
 
@@ -42,16 +54,6 @@ async def audit_middleware(request: Request, call_next):
         },
     )
     return response
-
-
-@app.on_event("startup")
-def on_startup() -> None:
-    init_db()
-
-
-@app.on_event("shutdown")
-def on_shutdown() -> None:
-    close_producer()
 
 
 app.include_router(api_router)

@@ -63,37 +63,4 @@ docker compose -f docker-compose.kafka-clickhouse.yml up -d --build
 
 Kafka будет доступна с хоста на `localhost:29092`, ClickHouse — на `localhost:8123` (HTTP) и `localhost:9000` (Native).
 
-### Отправка чисел в Kafka
 
-Через API приложения:
-```bash
-curl -X POST http://localhost:8000/api/ingest/number \
-  -H "Content-Type: application/json" \
-  -d '{"value": 10}'
-curl -X POST http://localhost:8000/api/ingest/number \
-  -H "Content-Type: application/json" \
-  -d '{"value": -5}'
-```
-
-Невалидные значения уходят в DLQ (topic `numbers_dlq`):
-```bash
-curl -X POST http://localhost:8000/api/ingest/number \
-  -H "Content-Type: application/json" \
-  -d '{"value": "oops"}'
-```
-
-### Проверка ClickHouse
-
-Суммы положительных и отрицательных чисел:
-```bash
-docker exec -it $(docker ps -qf "ancestor=clickhouse/clickhouse-server:24.8") \
-  clickhouse-client --query \
-  "SELECT sum(sum_positive) AS sum_positive, sum(sum_negative) AS sum_negative FROM analytics.numbers_sign_sum"
-```
-
-DLQ-таблица:
-```bash
-docker exec -it $(docker ps -qf "ancestor=clickhouse/clickhouse-server:24.8") \
-  clickhouse-client --query \
-  "SELECT * FROM analytics.numbers_dlq ORDER BY ts DESC LIMIT 10"
-```
